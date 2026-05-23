@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SteamSell AI - Вход</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f2fe;
+            --neon-purple: #bc13fe;
+            --bg-dark: #050509;
+            --font-main: 'Oxanium', sans-serif;
+        }
+        body {
+            background: var(--bg-dark); color: white; font-family: var(--font-main);
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+            background-image: radial-gradient(circle at center, #1a1a2e 0%, #050509 100%);
+        }
+        .login-card {
+            background: rgba(23, 26, 33, 0.9); padding: 50px 40px; border-radius: 0;
+            text-align: center; border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.1); width: 320px;
+            position: relative;
+        }
+        .login-card::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0;
+            border-style: solid; border-width: 0 20px 20px 0;
+            border-color: transparent var(--neon-cyan) transparent transparent;
+        }
+
+        h1 { text-shadow: 0 0 15px var(--neon-cyan); margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px;}
+
+        input {
+            width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 15px; border-radius: 0;
+            background: rgba(0,0,0,0.5); border: 1px solid #333; color: white; outline: none;
+            font-family: var(--font-main);
+        }
+        input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0,242,254,0.3); }
+
+        .btn {
+            width: 100%; padding: 12px; margin-bottom: 10px; cursor: pointer;
+            background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
+            font-weight: bold; font-family: var(--font-main); text-transform: uppercase; transition: 0.3s;
+        }
+        .btn:hover { background: var(--neon-cyan); color: var(--bg-dark); box-shadow: 0 0 15px var(--neon-cyan); }
+
+        .btn-reg { border-color: var(--neon-purple); color: var(--neon-purple); }
+        .btn-reg:hover { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); }
+
+        .divider { margin: 25px 0; color: #555; font-size: 0.9em; letter-spacing: 2px; }
+
+        .steam-btn { display: inline-block; transition: 0.3s; }
+        .steam-btn:hover { transform: scale(1.05); filter: drop-shadow(0 0 10px var(--neon-cyan)); }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>STEAMSELL AI</h1>
+
+        <input type="text" id="reg-user" placeholder="Логин">
+        <input type="password" id="reg-pass" placeholder="Пароль">
+
+        <button onclick="handleAuth('login')" class="btn">ВОЙТИ</button>
+        <button onclick="handleAuth('register')" class="btn btn-reg">РЕГИСТРАЦИЯ</button>
+
+        <div class="divider">--- ИЛИ ---</div>
+
+        <a href="/login-steam" class="steam-btn">
+            <img src="https://community.cloudflare.steamstatic.com/public/images/signinthroughsteam/sits_01.png" alt="Войти через Steam">
+        </a>
+    </div>
+
+    <script>
+        async function handleAuth(action) {
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+            if(!user || !pass) return alert("Введите логин и пароль");
+
+            try {
+                const res = await fetch(`/api/${action}?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`, {
+                    method: 'POST'
+                });
+
+                if (action === 'register') {
+                    if(res.ok) {
+                        alert("Успешно! Теперь нажмите ВОЙТИ.");
+                    } else {
+                        const data = await res.json();
+                        alert("Ошибка: " + (data.detail || "Не удалось зарегистрироваться."));
+                    }
+                } else {
+                    if(res.ok || res.redirected) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        const data = await res.json();
+                        alert("Ошибка: " + (data.detail || "Неверный логин или пароль."));
+                    }
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Критическая ошибка соединения с сервером.");
+            }
+        }
+    </script>
+</body>
+</html>

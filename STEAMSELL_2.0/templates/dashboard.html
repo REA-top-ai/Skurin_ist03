@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SteamSell - Мои рекомендации</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Глобальные стили в стиле Cyberpunk */
+        :root {
+            --bg-color: #050509;
+            --panel-bg: rgba(23, 26, 33, 0.8);
+            --accent-cyan: #00f2fe;
+            --accent-cyan-dim: rgba(0, 242, 254, 0.5);
+            --accent-green: #beee11;
+            --accent-green-dim: rgba(190, 238, 17, 0.5);
+            --text-color: #ffffff;
+            --text-dim: #8492a6;
+            --border-color: #1a2a3a;
+            --font-main: 'Oxanium', sans-serif;
+            --alert-red: #ff3131;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image:
+                linear-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px),
+                linear-gradient(90px, rgba(0, 242, 254, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: var(--text-color);
+            font-family: var(--font-main);
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Шапка */
+        .nav {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            padding: 20px 30px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .nav h2 { margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        #sid { color: var(--accent-cyan); font-size: 0.85em; margin: 5px 0 0 0; }
+
+        .controls { display: flex; gap: 15px; align-items: center; }
+
+        select {
+            background: rgba(42, 71, 94, 0.3);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 11px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid transparent;
+            font-family: var(--font-main);
+            text-transform: uppercase;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-primary { border-color: var(--accent-cyan); color: var(--accent-cyan); background: transparent; }
+        .btn-primary:hover { background: var(--accent-cyan); color: var(--bg-color); box-shadow: 0 0 15px var(--accent-cyan-dim); }
+
+        .btn-secondary { border-color: var(--text-dim); color: var(--text-dim); background: rgba(61, 68, 80, 0.3); }
+        .btn-secondary:hover { border-color: var(--text-color); color: var(--text-color); background: rgba(61, 68, 80, 0.5); }
+
+        /* Сетка и карточки */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            transition: 0.3s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card:hover { transform: translateY(-5px); border-color: var(--accent-cyan); box-shadow: 0 10px 20px -10px var(--accent-cyan-dim); }
+
+        .card::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0;
+            border-style: solid; border-width: 0 15px 15px 0;
+            border-color: transparent var(--border-color) transparent transparent;
+            transition: border-color 0.3s; z-index: 2;
+        }
+        .card:hover::before { border-color: transparent var(--accent-cyan) transparent transparent; }
+
+        .card img { width: 100%; border-bottom: 1px solid var(--border-color); display: block; }
+
+        .card-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;}
+        .card-info h4 { margin: 0 0 10px 0; font-size: 1.1em; line-height: 1.3; }
+        .card-info p { margin: 0; display: flex; justify-content: space-between; align-items: center; }
+
+        .price-val { font-weight: 700; color: var(--accent-green); font-size: 1.2em; text-shadow: 0 0 5px var(--accent-green-dim); }
+
+        #status {
+            margin-bottom: 20px; padding: 15px;
+            background: rgba(42, 71, 94, 0.2);
+            border-left: 3px solid var(--accent-cyan);
+            color: var(--text-dim);
+        }
+
+        .locked-container {
+            grid-column: 1 / -1; text-align: center; padding: 60px 20px;
+            border: 1px dashed var(--accent-cyan); background: rgba(0, 242, 254, 0.05);
+            backdrop-filter: blur(3px);
+        }
+        .locked-container h2 { color: var(--accent-cyan); text-shadow: 0 0 15px var(--accent-cyan-dim); margin-bottom: 10px; }
+
+        /* --- НОВЫЕ СТИЛИ ПАГИНАЦИИ --- */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 50px;
+            padding-bottom: 40px;
+        }
+
+        .page-num {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px var(--accent-cyan-dim);
+            letter-spacing: 2px;
+        }
+
+        .page-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 12px 25px;
+            font-family: var(--font-main);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--accent-cyan);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--accent-cyan-dim);
+        }
+
+        .page-btn:disabled {
+            border-color: var(--border-color);
+            color: var(--text-dim);
+            cursor: not-allowed;
+            background: transparent;
+            text-shadow: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div>
+            <h2 id="welcome">Загрузка...</h2>
+            <p id="sid"></p>
+        </div>
+        <div class="controls">
+            <select id="currencySelect" onchange="updatePrices()">
+                <option value="1.0" data-symb="$">USD ($)</option>
+                <option value="92.5" data-symb="₽">RUB (₽)</option>
+                <option value="448.0" data-symb="₸">KZT (₸)</option>
+            </select>
+            <a href="/profile" class="btn btn-secondary">ПРОФИЛЬ ⚙</a>
+            <a href="/search" class="btn btn-primary">ИИ ПОИСК</a>
+        </div>
+    </div>
+
+    <div id="status">Синхронизация библиотеки...</div>
+    <div class="grid" id="game-grid"></div>
+
+    <div class="pagination" id="pagination-controls" style="display: none;">
+        <button onclick="changePage(-1)" class="page-btn" id="btn-prev">← НАЗАД</button>
+        <div class="page-num">СТРАНИЦА <span id="current-page-text">1</span></div>
+        <button onclick="changePage(1)" class="page-btn" id="btn-next">ВПЕРЕД →</button>
+    </div>
+
+    <script>
+        let currentPage = 0; // В API страницы начинаются с 0
+        let rates = { "USD": 1.0, "RUB": 92.5, "KZT": 448.0 };
+
+        function getCookie(name) {
+            let matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+            ));
+            return matches ? decodeURIComponent(matches[1]) : undefined;
+        }
+
+        // 1. Получаем курсы
+        fetch('/api/rates')
+            .then(res => res.json())
+            .then(data => {
+                rates = data;
+                const sel = document.getElementById('currencySelect');
+                sel.options[1].value = rates.RUB;
+                sel.options[2].value = rates.KZT;
+            }).catch(e => console.log("Ошибка курсов", e));
+
+        // 2. Обновление цен при смене валюты
+        function updatePrices() {
+            const select = document.getElementById('currencySelect');
+            const symbol = select.options[select.selectedIndex].getAttribute('data-symb');
+
+            // Если выбрали рубли — перезапрашиваем данные с сервера, чтобы получить настоящие цены Steam
+            if (symbol === '₽') {
+                loadDeals(currentPage);
+            } else {
+                const rate = parseFloat(select.value);
+                document.querySelectorAll('.price-val').forEach(el => {
+                    const usdPrice = parseFloat(el.getAttribute('data-usd'));
+                    el.innerText = (usdPrice * rate).toFixed(2) + " " + symbol;
+                });
+            }
+        }
+
+        // 3. Управление страницами
+        function changePage(step) {
+            currentPage += step;
+            if (currentPage < 0) currentPage = 0; // Защита от ухода в минус
+            loadDeals(currentPage);
+
+            // Плавно прокручиваем страницу наверх при перелистывании
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 4. Загрузка рекомендаций
+        function loadDeals(page) {
+            const grid = document.getElementById('game-grid');
+            const status = document.getElementById('status');
+            const pagination = document.getElementById('pagination-controls');
+
+            // Скрываем пагинацию во время загрузки
+            pagination.style.display = 'none';
+            status.style.display = 'block';
+            status.innerText = `Анализ нейросети... Загрузка страницы ${page + 1}...`;
+            grid.innerHTML = '';
+
+            fetch(`/api/recommend?page=${page}`)
+                .then(res => {
+                    if (res.status === 401) { window.location.href = '/'; return; }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    status.style.display = 'none';
+
+                    // Если Steam не привязан
+                    if (data.status === "locked") {
+                        grid.innerHTML = `
+                            <div class="locked-container">
+                                <h2>ACCESS DENIED</h2>
+                                <p>${data.message || "Для анализа библиотеки требуется привязка Steam."}</p>
+                                <a href="/login-steam" class="btn btn-primary" style="padding: 15px 30px;">ПРИВЯЗАТЬ STEAM</a>
+                            </div>`;
+                        return; // Пагинация остается скрытой
+                    }
+
+                    const select = document.getElementById('currencySelect');
+                    const symbol = select.options[select.selectedIndex].getAttribute('data-symb');
+                    const rate = parseFloat(select.value);
+
+                    // Отрисовка карточек
+                    if (data.recommended && data.recommended.length > 0) {
+                        grid.innerHTML = data.recommended.map(game => {
+                            let displayPrice;
+                            if (symbol === '₽' && game.real_rub_price) {
+                                displayPrice = game.real_rub_price;
+                            } else {
+                                displayPrice = (parseFloat(game.salePrice) * rate).toFixed(2) + " " + symbol;
+                            }
+
+                            return `
+                                <a href="https://store.steampowered.com/app/${game.steamAppID}" target="_blank" style="text-decoration: none; color: inherit;">
+                                    <div class="card">
+                                        <img src="https://cdn.akamai.steamstatic.com/steam/apps/${game.steamAppID}/header.jpg" onerror="this.src='https://via.placeholder.com/460x215?text=No+Image'">
+                                        <div class="card-info">
+                                            <h4>${game.title}</h4>
+                                            <div style="color: var(--text-dim); font-size: 0.85em; margin-bottom: 10px;">
+                                                Скидка: <span style="color: var(--accent-cyan);">-${Math.round(game.savings || 0)}%</span>
+                                            </div>
+                                            <p>Цена: <span class="price-val" data-usd="${game.salePrice}">${displayPrice}</span></p>
+                                        </div>
+                                    </div>
+                                </a>`;
+                        }).join('');
+
+                        // Обновляем и показываем панель страниц
+                        document.getElementById('current-page-text').innerText = page + 1;
+                        document.getElementById('btn-prev').disabled = (page === 0);
+
+                        // Если пришло меньше карточек, чем мы запрашивали (например, конец списка), отключаем кнопку "Вперед"
+                        document.getElementById('btn-next').disabled = (data.recommended.length < 8);
+
+                        pagination.style.display = 'flex';
+
+                    } else {
+                        grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color: var(--text-dim); font-size: 1.2em; padding: 40px;">Больше предложений не найдено.</p>';
+
+                        // Если страница пустая, оставляем кнопку "Назад", блокируем "Вперед"
+                        document.getElementById('current-page-text').innerText = page + 1;
+                        document.getElementById('btn-prev').disabled = (page === 0);
+                        document.getElementById('btn-next').disabled = true;
+                        pagination.style.display = 'flex';
+                    }
+                })
+                .catch(err => {
+                    status.innerText = 'Ошибка загрузки. Сервер не отвечает.';
+                    console.error(err);
+                });
+        }
+
+        // Инициализация профиля и старт
+        const userName = getCookie('steam_user');
+        const steamId = getCookie('steam_id');
+
+        if (!userName) {
+            window.location.href = '/';
+        } else {
+            document.getElementById('welcome').innerText = "SYSTEM USER: " + decodeURIComponent(userName);
+            if (steamId) {
+                document.getElementById('sid').innerText = "SteamID: " + steamId;
+            } else {
+                document.getElementById('sid').innerText = "Steam: НЕ ПОДКЛЮЧЕН";
+                document.getElementById('sid').style.color = "var(--alert-red)";
+            }
+            loadDeals(currentPage);
+        }
+    </script>
+</body>
+</html>

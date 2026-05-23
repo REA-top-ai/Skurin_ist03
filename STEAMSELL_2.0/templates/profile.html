@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ОСНОВНЫЕ СТИЛИ - ОБЩИЕ ДЛЯ ВСЕХ СТРАНИЦ */
+        :root {
+            --bg-color: #050509;
+            --panel-bg: rgba(23, 26, 33, 0.9); /* Чуть плотнее для модальных окон */
+            --accent-cyan: #00f2fe;
+            --accent-cyan-dim: rgba(0, 242, 254, 0.5);
+            --accent-red: #ff4655; /* Кастомный красный для логаута */
+            --accent-red-dim: rgba(255, 70, 85, 0.5);
+            --text-color: #ffffff;
+            --text-dim: #8492a6;
+            --border-color: #1a2a3a;
+            --font-main: 'Oxanium', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image:
+                linear-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px),
+                linear-gradient(90px, rgba(0, 242, 254, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: var(--text-color);
+            font-family: var(--font-main);
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Центрируем карточку вертикально */
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* ЗАГОЛОВКИ */
+        h2 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* ПРОФИЛЬНАЯ КАРТОЧКА (ОБНОВЛЕННАЯ) */
+        .profile-card {
+            background: var(--panel-bg);
+            padding: 40px;
+            border-radius: 0;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px); /* Эффект размытия фона */
+        }
+
+        /* Декоративная линия сверху */
+        .profile-card::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 60px;
+            height: 5px;
+            background: var(--accent-cyan);
+        }
+
+        .input-group {
+            margin: 30px 0;
+        }
+
+        .input-group label {
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* ПОЛЯ ВВОДА */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 0;
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            background: rgba(42, 71, 94, 0.2);
+            color: var(--text-color);
+            font-size: 16px;
+            font-family: var(--font-main);
+            outline: none;
+            transition: all 0.3s;
+            box-sizing: border-box; /* Важно чтобы padding не распирал */
+        }
+
+        input[type="text"]:focus {
+            border-bottom-color: var(--accent-cyan);
+            background: rgba(42, 71, 94, 0.4);
+        }
+
+        /* КНОПКИ (ОБЩИЙ СТИЛЬ) */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            font-family: var(--font-main);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        /* Специфичные стили кнопок */
+        .btn-save {
+            background: transparent;
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .btn-save:hover {
+            background: var(--accent-cyan);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--accent-cyan-dim);
+        }
+
+        .btn-back {
+            background: rgba(61, 68, 80, 0.3);
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+            margin-top: 25px; /* Больший отступ */
+        }
+        .btn-back:hover {
+            border-color: var(--text-color);
+            background: rgba(61, 68, 80, 0.5);
+            color: var(--text-color);
+        }
+
+        .btn-logout {
+            background: transparent;
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            margin-top: 15px;
+        }
+        .btn-logout:hover {
+            background: var(--accent-red);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-red-dim);
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <h2>Профиль</h2>
+        <p id="steam-id-display" style="font-size: 0.9em; color: var(--accent-cyan); text-align: center; margin-bottom: 30px; letter-spacing: 1px;"></p>
+
+        <div class="input-group">
+            <label>Имя профиля:</label>
+            <input type="text" id="usernameInput" placeholder="Введите новое имя">
+        </div>
+
+        <button onclick="saveName()" class="btn btn-save">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+        <a href="/dashboard" class="btn btn-back">НАЗАД В МЕНЮ</a>
+        <a href="/logout" class="btn btn-logout">ВЫЙТИ ИЗ АККАУНТА</a>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let value = "; " + document.cookie;
+            let parts = value.split("; " + name + "=");
+            if (parts.length == 2) return parts.pop().split(";").shift();
+        }
+
+        // Заполняем текущие данные
+        const currentName = decodeURIComponent(getCookie('steam_user') || "");
+        const steamId = getCookie('steam_id');
+
+        document.getElementById('usernameInput').value = currentName;
+        document.getElementById('steam-id-display').innerText = "SteamID: " + steamId;
+
+        async function saveName() {
+            const newName = document.getElementById('usernameInput').value;
+            if (!newName) return alert("Имя не может быть пустым");
+
+            const res = await fetch(`/api/update-username?new_name=${encodeURIComponent(newName)}`, {
+                method: 'POST'
+            });
+
+            if (res.ok) {
+                // Обновляем куки на клиенте, чтобы имя сменилось везде
+                document.cookie = `steam_user=${encodeURIComponent(newName)}; path=/`;
+                alert("Имя успешно обновлено!");
+                window.location.href = '/dashboard';
+            } else {
+                alert("Ошибка при сохранении");
+            }
+        }
+    </script>
+</body>
+</html>
