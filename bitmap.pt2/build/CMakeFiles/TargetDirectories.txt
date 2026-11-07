@@ -1,0 +1,3 @@
+/Users/lonlight/C++/bitmap/build/CMakeFiles/bitmap.dir
+/Users/lonlight/C++/bitmap/build/CMakeFiles/edit_cache.dir
+/Users/lonlight/C++/bitmap/build/CMakeFiles/rebuild_cache.dir
